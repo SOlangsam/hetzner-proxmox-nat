@@ -1,0 +1,48 @@
+
+
+source /etc/network/interfaces.d/*
+
+auto lo
+iface lo inet loopback
+iface lo inet6 loopback
+
+auto eno1
+iface eno1 inet static
+  address <Haupt-IP>
+  netmask 255.255.255.224
+  gateway <Gateway-IP>  
+  up route add -net 148.x.x.x netmask 255.255.255.224 gw 148.x.x.x dev eno1
+
+iface eno1 inet6 static
+  address 2a01:x:x:x::x
+  netmask 64
+  gateway fe80::1
+
+## Example of private network
+auto vmbr0
+iface vmbr0 inet static
+    address 10.0.0.1
+    netmask 30
+    bridge_ports none
+    bridge_stp off
+    bridge_fd 0
+
+    ##Allow IP Forwarding
+    post-up echo 1 > /proc/sys/net/ipv4/ip_forward    
+    
+    ##Internet 4 all VMs	- Outgoing
+    post-up iptables -t nat -A POSTROUTING -s '10.0.0.0/30' -o eno1 -j MASQUERADE 
+    
+    ##Allow Remote - Incoming
+    post-up iptables -t nat -A PREROUTING -i eno1 -p tcp --dport 3389 -j DNAT --to 10.0.0.2:3389    
+    post-up iptables -t nat -A PREROUTING -i eno1 -p udp --dport 3389 -j DNAT --to 10.0.0.2:3389
+    
+    ##Allow SSH - Incoming
+    post-up iptables -t nat -A PREROUTING -i eno1 -p tcp --dport 22 -j DNAT --to 10.0.0.3:22    
+        
+    ## Delete all NAT rules
+    post-down iptables -t nat -D POSTROUTING -s '10.0.0.0/30' -o eno1 -j MASQUERADE    
+    post-down iptables -t nat -D PREROUTING -i eno1 -p tcp --dport 3389 -j DNAT --to 10.0.0.2:3389
+    post-down iptables -t nat -D PREROUTING -i eno1 -p udp --dport 3389 -j DNAT --to 10.0.0.2:3389
+    post-down iptables -t nat -D PREROUTING -i eno1 -p tcp --dport 22 -j DNAT --to 10.0.0.3:22    
+
