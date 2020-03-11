@@ -9,7 +9,7 @@ Wichtig ist, dass für jede IP bzw. jeden Port, der nach außen erreichbar sein 
 Bei jeder Änderung muss am besten ein Reboot von allen Systemen durchgeführt werden!
 
 
-*Update*
+*Update* <br>
 Heute möchte ich mein Repo um die Möglichkeit ergänzen, statt die Ports für jedgliche Anwendung freizuschalten, einen VPN Zugang zu nutzen.
 Vorteil liegt ganz klar auf der Hand. Host System lauscht nicht auf allen möglichen Ports nach außen, es hält nur den VPN Port offen
 
